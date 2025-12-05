@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,13 +91,42 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+#
+# The backend supports PostgreSQL when environment variables are provided:
+#   DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+# If these are not provided, it will fall back to SQLite for local/dev usage.
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Read database configuration from environment (used by orchestrator).
+# If these are present, we will use PostgreSQL; otherwise we fall back to SQLite.
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")  # expected to be "5001" in this environment; defaults to 5432 if not set
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+
+# Determine if Postgres is configured: require host, name, user, and password.
+_use_postgres = all([DB_HOST, DB_NAME, DB_USER, DB_PASSWORD])
+
+if _use_postgres:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': DB_HOST,
+            'PORT': DB_PORT or '5432',  # default if not explicitly provided
+            'NAME': DB_NAME,
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'CONN_MAX_AGE': 60,  # keep-alive for pooled connections
+        }
     }
-}
+else:
+    # Fallback to SQLite for development/testing
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
