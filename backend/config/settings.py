@@ -48,6 +48,14 @@ INSTALLED_APPS = [
     'api'
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        # Browsable API not required; can add if needed:
+        # "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
+}
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
