@@ -7,7 +7,7 @@ This Django backend supports PostgreSQL via environment variables with a fallbac
 Set the following environment variables:
 
 - DB_HOST
-- DB_PORT (defaults to 5432 if not provided; this environment uses 5001)
+- DB_PORT (defaults to 5432 if not provided; this environment uses 5001 by convention)
 - DB_NAME
 - DB_USER
 - DB_PASSWORD
